@@ -3,7 +3,7 @@ from fastapi import FastAPI, HTTPException, Query
 
 app = FastAPI()
 
-API_KEY = "AIzaSyD9mZ6fK-jaPyGIPIFhU35cI0-m0HaemBE"
+API_KEY = "AIzaSyBQYlyKeTpOiCoCvlCP0v8WIw_im9RqA38"
 VALID_KEY = "JUBAYER"
 
 def try_gemini(question):
