@@ -1,23 +1,21 @@
+import os
 from fastapi import FastAPI, HTTPException, Query
 import google.generativeai as genai
-import uvicorn
-import os
 
 app = FastAPI()
 
-# আপনার Gemini API Key এখানে দিন
-API_KEY = "AIzaSyD9mZ6fK-jaPyGIPIFhU35cI0-m0HaemBE" 
+# আপনার API Key
+API_KEY = "AIzaSyD9mZ6fK-jaPyGIPIFhU35cI0-m0HaemBE"
 genai.configure(api_key=API_KEY)
 
-# এআই মডেল সেটআপ
-model = genai.GenerativeModel('gemini-1.5-flash')
+# এআই মডেল সেটআপ - এখানে model_name প্যারামিটারটি নিশ্চিত করুন
+model = genai.GenerativeModel(model_name="gemini-1.5-flash")
 
-# সিকিউরিটি কী
 VALID_KEY = "JUBAYER"
 
 @app.get("/")
 def home():
-    return {"message": "AI Chat API is Running!", "usage": "/ask?key=JUBAYER&question=Your Question"}
+    return {"message": "API is Live!", "usage": "/ask?key=JUBAYER&question=Hello"}
 
 @app.get("/ask")
 async def ask_ai(key: str = Query(...), question: str = Query(...)):
@@ -26,16 +24,22 @@ async def ask_ai(key: str = Query(...), question: str = Query(...)):
         raise HTTPException(status_code=403, detail="Invalid API Key")
 
     try:
-        # এআই থেকে উত্তর নেওয়া
+        # এআই থেকে উত্তর জেনারেট করা
         response = model.generate_content(question)
-        return {
-            "status": "success",
-            "question": question,
-            "answer": response.text
-        }
+        
+        # যদি উত্তর খালি না থাকে তবে রিটার্ন করা
+        if response.text:
+            return {
+                "status": "success",
+                "answer": response.text
+            }
+        else:
+            return {"status": "error", "message": "No response from AI"}
+            
     except Exception as e:
         return {"status": "error", "message": str(e)}
 
-# টার্মাক্সে রান করার জন্য
+# টার্মাক্সে টেস্ট করার জন্য (Vercel এটা ইগনোর করবে)
 if __name__ == "__main__":
+    import uvicorn
     uvicorn.run(app, host="0.0.0.0", port=8000)
